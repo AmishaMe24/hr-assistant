@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HR Assistant Application
 
-## Getting Started
+## Instructions for Running the Application Locally
 
-First, run the development server:
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/AmishaMe24/hr-assistant
+   cd hr-assistant
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. **Set up environment variables**
+   Create a `.env.local` file in the root directory with the following variables:
+   ```
+   OPENAI_API_KEY=your_openai_api_key
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4. **Run the development server**
+   ```bash
+   npm run dev
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+5. **Access the application**
+   Open your browser and navigate to `http://localhost:3000`
 
-## Learn More
+## Project Overview
 
-To learn more about Next.js, take a look at the following resources:
+### Approach
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This HR Assistant application is designed to provide accurate information about job positions across different jurisdictions. The system uses natural language processing to understand user queries and retrieves relevant information from a structured database of job descriptions and salary data.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Key features of the approach:
 
-## Deploy on Vercel
+1. **Section Extraction**: The application parses job descriptions to extract structured sections like "Knowledge, Skills, and Abilities", "Education and Experience", and "Examples of Duties" to provide targeted responses.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+2. **Vector Search**: Implemented semantic search capabilities to find the most relevant job descriptions based on user queries.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. **Context-Aware Responses**: The system identifies the type of query (salary, skills, education, etc.) and formats responses appropriately.
+
+4. **Direct Information Retrieval**: For specific queries about job sections, the system returns the exact content from the job description without summarizing.
+
+### Technologies Used
+
+- **Next.js**: For the frontend and API routes
+- **LangChain**: For building the LLM application workflow
+- **OpenAI API**: For natural language processing (GPT-4o-mini model)
+- **Vector Store**: For semantic search capabilities (MemoryVectorStore)
+- **TypeScript**: For type-safe code
+
+### Challenges Faced
+
+1. **Section Extraction**: Parsing unstructured job descriptions to extract meaningful sections was challenging due to inconsistent formatting across different jurisdictions. The solution involved creating a robust parsing algorithm that could handle various section header formats.
+
+2. **Query Understanding**: Determining the exact intent of user queries required careful keyword mapping to relevant job description sections.
+
+3. **Response Formatting**: Ensuring that responses were formatted appropriately for different query types (especially salary information) required specific prompt engineering.
+
+4. **Performance Optimization**: Balancing the need for comprehensive information retrieval with response time considerations was a challenge, addressed by optimizing the vector search process.
+
+5. **Data Consistency**: Handling inconsistencies in how different jurisdictions format their job descriptions and salary information required additional data normalization steps.
+
+The application successfully addresses these challenges by implementing a flexible architecture that can adapt to different query types and data formats while providing accurate and relevant information to users.

@@ -8,7 +8,6 @@ interface QueryResult {
 }
 
 export async function parseQuery(query: string): Promise<QueryResult> {
-  // Use vector search to find relevant documents
   const searchResults = await searchDocuments(query, 3);
   
   if (searchResults.length === 0) {
@@ -22,15 +21,12 @@ export async function parseQuery(query: string): Promise<QueryResult> {
 
   console.log(searchResults);
   
-  // Get the most relevant document
   const topResult = searchResults[0];
   const metadata = topResult.metadata;
   
-  // Extract job title and jurisdiction from metadata
   const jobTitle = metadata.title || null;
   const jurisdiction = metadata.jurisdiction || null;
   
-  // Parse the content into a structured format
   const lines = topResult.pageContent.split('\n').map(line => line.trim()).filter(line => line);
   const relevantData = {};
   
@@ -42,6 +38,45 @@ export async function parseQuery(query: string): Promise<QueryResult> {
       relevantData[key] = value;
     }
   });
+  
+  const lowerQuery = query.toLowerCase();
+  let relevantContent = topResult.pageContent;
+  
+  if (metadata.sections) {
+    const sectionKeywords = {
+      "duties": ["Examples of Duties", "Examples Of Duties"],
+      "responsibilities": ["Examples of Duties", "Examples Of Duties"],
+      "skills": ["Knowledge, Skills, and Abilities", "KNOWLEDGE, SKILLS AND ABILITIES", "KNOWLEDGE AND SKILLS"],
+      "abilities": ["Knowledge, Skills, and Abilities", "KNOWLEDGE, SKILLS AND ABILITIES", "KNOWLEDGE AND SKILLS"],
+      "knowledge": ["Knowledge, Skills, and Abilities", "KNOWLEDGE, SKILLS AND ABILITIES", "KNOWLEDGE AND SKILLS"],
+      "education": ["Education and Experience", "EDUCATION AND/OR EXPERIENCE", "Education/Experience", "MINIMUM QUALIFICATIONS"],
+      "experience": ["Education and Experience", "EDUCATION AND/OR EXPERIENCE", "Education/Experience", "MINIMUM QUALIFICATIONS"],
+      "qualifications": ["Qualification Guidelines", "MINIMUM QUALIFICATIONS"],
+      "requirements": ["Other Requirements", "Supplemental Information"],
+      "definition": ["Definition"],
+      "characteristics": ["Distinguishing Characteristics", "CLASSIFICATION PURPOSE AND DISTINGUISHING CHARACTERISTICS"],
+      "purpose": ["CLASSIFICATION PURPOSE AND DISTINGUISHING CHARACTERISTICS"],
+      "classification": ["CLASSIFICATION PURPOSE AND DISTINGUISHING CHARACTERISTICS"]
+    };
+    
+    const matchingSections: string[] = [];
+    Object.entries(sectionKeywords).forEach(([keyword, headers]) => {
+      if (lowerQuery.includes(keyword)) {
+        headers.forEach(header => {
+          if (metadata.sections[header] && !matchingSections.includes(header)) {
+            matchingSections.push(header);
+          }
+        });
+      }
+    });
+    
+    if (matchingSections.length > 0) {
+      relevantContent = `Job Title: ${metadata.title}\nJurisdiction: ${metadata.jurisdiction}\nJob Code: ${metadata.code}\n\n`;
+      matchingSections.forEach(section => {
+        relevantContent += `${section}:\n${metadata.sections[section]}\n\n`;
+      });
+    }
+  }
   
   return {
     jobTitle,

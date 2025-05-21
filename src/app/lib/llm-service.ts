@@ -1,18 +1,16 @@
-import { ChatGroq } from '@langchain/groq';
+import { ChatOpenAI  } from '@langchain/openai';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { parseQuery } from './query-parser';
 
-// Initialize the Groq LLM
-const llm = new ChatGroq({
-  apiKey: process.env.GROQ_API_KEY || '',
-  model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+const llm = new ChatOpenAI({
+  apiKey: process.env.OPENAI_API_KEY || '',
+  model: 'gpt-4o-mini'
 });
 
 const outputParser = new StringOutputParser();
 
 export async function processQuery(userQuery: string): Promise<string> {
-  // Parse the query to get relevant information
 
   const queryResult = await parseQuery(userQuery);
 
@@ -32,27 +30,25 @@ export async function processQuery(userQuery: string): Promise<string> {
     {relevantContent}
     
     Based ONLY on the information provided above, answer the user's question.
-    Your response must be concise and direct - one or two sentences maximum.
     
     For salary questions:
     - Format the response as: "The [job title] in [jurisdiction] has a salary range from [lowest amount] to [highest amount] per hour/per month (salary grades [x] and [y])."
     - Do not include asterisks, bullet points, or any other formatting.
     - Do not explain what salary grades mean or provide additional context.
+    - If the salary information is not available, respond with: "I'm sorry, I couldn't find the salary information for this job."
     
     For all other questions:
-    - Keep your response under 5 sentences.
-    - Be direct and specific.
+    - IMPORTANT: provide the EXACT content from the job description/sections/relevant content without summarizing.
     - Do not use bullet points or markdown formatting.
+    - for multiple points make it comma separated.
     
-    IMPORTANT: Use ONLY the information provided above. Do NOT make up or estimate salary ranges.
+    IMPORTANT: Use ONLY the information provided above.
   `;
   
   const prompt = ChatPromptTemplate.fromTemplate(promptTemplate);
   
-  // Create the chain
   const chain = prompt.pipe(llm).pipe(outputParser);
   
-  // Execute the chain
   const response = await chain.invoke({
     query: userQuery,
     relevantContent: queryResult.topResult.pageContent,
