@@ -1,5 +1,8 @@
 # HR Assistant Application
 
+![image](https://github.com/user-attachments/assets/f1400592-5fc2-4030-82a5-58566505f6eb)
+
+
 ## Instructions for Running the Application Locally
 
 1. **Clone the repository**
